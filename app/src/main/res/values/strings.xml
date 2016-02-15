@@ -4,5 +4,37 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <!-- Navigation Drawer Item Labels not USED in this version-->
+    <!--
+    <string-array name="menu_items">
+        <item>"HOT Twitter"</item>
+        <item>"HOT Web Page"</item>
+        <item>"HOT Videos"</item>
+        <item>"HOT Facebook"</item>
+        <item>"HOT PDFs"</item>
+    </string-array> -->
+
+    <!-- Twitter Feed Fragment -->
+    <string name="twitterFragment">HOT Twitter</string>
+    <string name="twitterHello">Twitter Feed (Fragment)</string>
+    <!-- HOT Webpage Fragment -->
+    <string name="hotWebpageFragment">HOT Web Page</string>
+    <string name="hotWebpageHello">HOT Web Page (Fragment)</string>
+    <!--HOT Videos Fragment -->
+    <string name="hotVideoFragment">HOT Videos</string>
+    <string name="hotVideoHello">HOT Videos (Fragment)</string>
+    <!-- Facebook Group Fragment Page Strings-->
+    <string name="hotFacebookFragment">HOT Facebook</string>
+    <string name="hotFacebookHello">Facebook (Fragment)</string>
+
+    <string name="hotPDFFragment">HOT PDFs</string>
+    <string name="handbookSyllabus">Handbook and Syllabus</string>
+    <string name="drumLineHandbook">Drumline Handbook</string>
+
+
+    <!-- Facebook SDK stuff -->
+    <string name="fbANum">695201970610878</string>
+    <string name="fbSecular">ee4d3ca7f37bc2c7900ffe5e57bb4d16</string>
 </resources>
