@@ -35,11 +35,15 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
     TextView storagePathTextView;
     private String AUTH;
     private String handBookfileName = null;
+    private String dl_handBookFileName = null;
     private String filePath = null;
+    Activity myActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        //set Context
+        myActivity = getActivity();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pdfs, container, false);
         //assign button to the fragments
@@ -47,13 +51,16 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         btnDrumlineHandbook = (Button) view.findViewById(R.id.btnDrumlineHandbook);
         btnCopy = (Button) view.findViewById(R.id.btnCopy);
         storagePathTextView = (TextView) view.findViewById(R.id.storagePathTextView);
+        //Listeners
         btnHandbookSyllabus.setOnClickListener(this);
         btnDrumlineHandbook.setOnClickListener(this);
         btnCopy.setOnClickListener(this);
+
         String thisPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         storagePathTextView.setText(thisPath);
 
         handBookfileName = "hot_handbook2015.pdf";
+        dl_handBookFileName = "dl_handbook15.pdf";
         filePath = thisPath + "/HOT_PDF/";
 
         return view;
@@ -73,21 +80,11 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         switch (view.getId())
         {   /*NOTE: Toasts in fragments require getActivity to get proper CONTEXT */
             case R.id.btnHandbookSyllabus: //syllabus button pressed
-                Toast.makeText(myActivity, "Syllabus button pressed", Toast.LENGTH_SHORT).show();
-                File pdf = new File(filePath + handBookfileName);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.fromFile(pdf), "application/pdf");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                //intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                Intent chooserIntent = Intent.createChooser(intent, "Open Syllabus");
-                startActivity(chooserIntent);
+                openPDF(handBookfileName, R.raw.hot_handbook2015);
                 break;
             case R.id.btnDrumlineHandbook:
-                Toast.makeText(getActivity(), "Drumline button pressed", Toast.LENGTH_SHORT).show();
-                break;
-
-            case R.id.btnCopy:
-                CopyReadAssets(handBookfileName); //pass in the file name to open up
+                //Toast.makeText(getActivity(), "Drumline button pressed", Toast.LENGTH_SHORT).show();
+                openPDF(dl_handBookFileName, R.raw.dl_handbook15);
                 break;
             default:
                 Toast.makeText(myActivity, "Error", Toast.LENGTH_SHORT).show();
@@ -96,37 +93,38 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    private void openPDF(String pdfFileName, int rsrc){
+        File pdf = new File(filePath + pdfFileName);
 
-    private void CopyReadAssets(String fileName){
-        Activity myActivity = getActivity();
+        if(!pdf.exists()){
+            Toast.makeText(myActivity, "The FILE DOESNT EXIST.", Toast.LENGTH_SHORT).show();
+            CopyReadAssets(pdf, rsrc);
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(pdf), "application/pdf");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        Intent chooserIntent = Intent.createChooser(intent, "Open PDF");
+        startActivity(chooserIntent);
+    }
 
+    private void CopyReadAssets(File thisFile, int rsrc){
         String tempFilePath = filePath;
         InputStream in = null;
         OutputStream out = null;
 
         File path = new File(tempFilePath);
         path.mkdirs();
-        File outFile;
+        copyToMemory(thisFile, rsrc);
 
-        outFile = new File (tempFilePath + fileName);
-        if(!outFile.exists()){
-            Toast.makeText(myActivity, "The FILE DOESNT EXIST.", Toast.LENGTH_SHORT).show();
-            copyToMemory(outFile);
-        }
-        }
-        /*
-        do{
-            tempFilePath += fileName;
-            outFile = new File(tempFilePath);
-        }while(outFile.exists() && !outFile.isDirectory());*/
+    }
 
 
+    private void copyToMemory(File outFile, int rsrc){
 
-    private void copyToMemory(File outFile){
         try{
             BufferedOutputStream os = new BufferedOutputStream(
                     new FileOutputStream(outFile));
-            BufferedInputStream is = new BufferedInputStream(getResources().openRawResource(R.raw.hot_handbook2015));
+            BufferedInputStream is = new BufferedInputStream(getResources().openRawResource(rsrc));
             copy(is, os);
         } catch (FileNotFoundException e){
             Log.e("File not found.", "FileNotFoundException");
