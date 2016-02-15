@@ -1,6 +1,7 @@
 package com.gerardoslnv.hotcomm;
 
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -84,22 +85,30 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        int containerId = R.id.main_content;
 
-
+        FragmentTransaction fragmentTransaction = fragManager.beginTransaction();
         //G.S. added switches
         switch(id){
             case R.id.nav_twitter:
+                fragmentTransaction.replace(containerId, new TwitterFragment(), getResources().getString(R.string.twitterFragment));
                 break;
             case R.id.nav_web:
+                fragmentTransaction.replace(containerId, new WebPageFragment(), getResources().getString(R.string.hotWebpageFragment));
                 break;
             case R.id.nav_videos:
+                fragmentTransaction.replace(containerId, new VideosFragment(), getResources().getString(R.string.hotVideoFragment));
                 break;
             case R.id.nav_facebook:
+                fragmentTransaction.replace(containerId, new FacebookFragment(), getResources().getString(R.string.hotFacebookFragment));
                 break;
             case R.id.nav_pdfs:
+                fragmentTransaction.replace(containerId, new PDFsFragment(), getResources().getString(R.string.hotPDFFragment));
                 break;
         }
 
+        fragmentTransaction.commit();
+        fragManager.executePendingTransactions();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
