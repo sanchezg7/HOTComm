@@ -1,0 +1,15 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.gerardogpc.hotcomm.VideosFragment">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/usf_green"
+        android:paddingTop="50dp"
+        android:text="@string/hotVideoHello"
+        android:textColor="@color/black"/>
+
+</FrameLayout>
