@@ -1,28 +1,25 @@
 package com.gerardoslnv.hotcomm;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -33,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PDFsFragment extends Fragment implements View.OnClickListener {
 
@@ -40,59 +38,84 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
     Button btnDrumlineHandbook;
     Button btnCopy;
     TextView storagePathTextView;
+    private fileListAdapter mFileListAdapter;
 
-    private ListView pdfsListView;
+    //RecyclerView 101
+    /*
+    Need LayoutManager to make it work, no more gridviews
+    Need adapter to decide how to put the elements
+    To display a row, create a XML file and inflate it in code (expensive linear operation)
+        Finding items for each row is also expensive
+        RecycleView helps avoid expensive costs
+     1: Inflate the layout (onCreateViewHolder)
+     2: use the ViewHolder to populate your current row inside the BindViewHolder
+     */
+    private RecyclerView pdfsRecyclerView; //extends from ViewGroup (layout class), far more flexible
 
-    private String AUTH;
+
     private String handBookfileName = null;
     private String dl_handBookFileName = null;
-    private String filePath = null;
-    Activity myActivity;
+    private static String filePath = null;
+    static Activity  myActivity;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         //set Context
-        myActivity = getActivity();
+        //myActivity = getActivity();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pdfs, container, false);
-        //assign button to the fragments
-//        btnHandbookSyllabus = (Button) view.findViewById(R.id.btnHandbookSyllabus);
-//        btnDrumlineHandbook = (Button) view.findViewById(R.id.btnDrumlineHandbook);
-//        btnCopy = (Button) view.findViewById(R.id.btnCopy);
-//        storagePathTextView = (TextView) view.findViewById(R.id.storagePathTextView);
-//        //Listeners
-//        btnHandbookSyllabus.setOnClickListener(this);
-//        btnDrumlineHandbook.setOnClickListener(this);
-//        btnCopy.setOnClickListener(this);
 
-        pdfsListView = (ListView) view.findViewById(R.id.pdfsListView);
+        //assign the recycler view
+        pdfsRecyclerView = (RecyclerView) view.findViewById(R.id.list_pdf);
+        return view;
+    }
 
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         String thisPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-//        storagePathTextView.setText(thisPath);
-
+        //storagePathTextView.setText(thisPath);
         handBookfileName = "hot_handbook2015.pdf";
         dl_handBookFileName = "dl_handbook15.pdf";
         filePath = thisPath + "/HOT_PDF/";
 
         ArrayList<String> myList = new ArrayList<String> ();
-        //Temporary hard adding elements
+        //Temporary HARD adding elements
         myList.add(handBookfileName);
         myList.add(dl_handBookFileName);
-        //{handBookfileName, dl_handBookFileName};
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(myActivity,
-//                android.R.layout.simple_list_item_1, items);
-//      pdfsListView.setAdapter(adapter);
 
-        //pdfsListView.setAdapter(new fileListAdapter( myActivity, myList));
-        fileListAdapter mAdapter = new fileListAdapter(myActivity, myList);
-        pdfsListView.setAdapter(mAdapter);
+        mFileListAdapter = new fileListAdapter(getActivity(), buildData(myList));
+        pdfsRecyclerView.setAdapter(mFileListAdapter);
+        //pdfsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //telling it to present in a LINEAR format
+        //spanCount	int: If orientation is vertical, spanCount is number of columns. If orientation is horizontal, spanCount is number of rows.
+        pdfsRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        pdfsRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), pdfsRecyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
 
-        return view;
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
     }
 
 
 
+    public static List<HOTfile> buildData(ArrayList<String> fileNames){
+        List<HOTfile> data = new ArrayList<>();
+
+        for(int i =0; i<fileNames.size(); ++i){
+            HOTfile mFile = new HOTfile(fileNames.get(i), "Never"); //String fileName, String lastModified
+            data.add(mFile);
+        }
+        return data;
+    }
     public PDFsFragment() {
         // Required empty public constructor
         //authority for the app
@@ -101,8 +124,8 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view){
-//        Activity myActivity = getActivity();
-//        assert myActivity != null;
+//        Activity getActivity = getActivity();
+//        assert getActivity != null;
 //        switch (view.getId())
 //        {   /*NOTE: Toasts in fragments require getActivity to get proper CONTEXT */
 //            case R.id.btnHandbookSyllabus: //syllabus button pressed
@@ -113,7 +136,7 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
 //                openPDF(dl_handBookFileName, R.raw.dl_handbook15);
 //                break;
 //            default:
-//                Toast.makeText(myActivity, "Error", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
 //                break;
 //        }
    }
@@ -122,7 +145,7 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         File pdf = new File(filePath + pdfFileName);
 
         if(!pdf.exists()){
-            Toast.makeText(myActivity, "The FILE DOESNT EXIST.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "The FILE DOESNT EXIST.", Toast.LENGTH_SHORT).show();
             CopyReadAssets(pdf, rsrc);
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -177,5 +200,42 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
 
+        private GestureDetector gestureDetector;
+
+        public RecyclerTouchListener(Context mContext, RecyclerView recyclerView, ClickListener clickListener){
+            gestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener(){
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return super.onSingleTapUp(e);
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    super.onLongPress(e);
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            return false; //false by default, passing it down to children layouts
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
+    }
+
+    public static interface ClickListener{
+        public void onClick(View view, int position);
+        public void onLongClick(View view, int position);
+    }
 }
