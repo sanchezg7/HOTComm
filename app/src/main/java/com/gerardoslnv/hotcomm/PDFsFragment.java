@@ -50,6 +50,9 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
      1: Inflate the layout (onCreateViewHolder)
      2: use the ViewHolder to populate your current row inside the BindViewHolder
      */
+
+
+
     private RecyclerView pdfsRecyclerView; //extends from ViewGroup (layout class), far more flexible
 
 
@@ -59,11 +62,15 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
     static Activity  myActivity;
 
 
+    public PDFsFragment() {
+        // Required empty public constructor
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         //set Context
-        //myActivity = getActivity();
+        myActivity = getActivity();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pdfs, container, false);
 
@@ -91,19 +98,24 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         pdfsRecyclerView.setAdapter(mFileListAdapter);
         //pdfsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //telling it to present in a LINEAR format
         //spanCount	int: If orientation is vertical, spanCount is number of columns. If orientation is horizontal, spanCount is number of rows.
-        pdfsRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(myActivity);
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        pdfsRecyclerView.setLayoutManager(mLinearLayoutManager);
         pdfsRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), pdfsRecyclerView, new ClickListener() {
             @Override
-            public void onClick(View view, int position) {
-
+            public void onItemClick(View view, int position) {
+                Toast.makeText(myActivity, "onItemClick " + position , Toast.LENGTH_LONG).show();
+                return;
             }
 
             @Override
             public void onLongClick(View view, int position) {
-
+                Toast.makeText(myActivity, "onLongClick " + position, Toast.LENGTH_LONG).show();
             }
         }));
     }
+
+
 
 
 
@@ -116,11 +128,7 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
         }
         return data;
     }
-    public PDFsFragment() {
-        // Required empty public constructor
-        //authority for the app
-        //AUTH = "com.example.gerardogpc.hotcomm.fileprovider"; CONTENT PROVIDER STUFF
-    }
+
 
     @Override
     public void onClick(View view){
@@ -203,23 +211,48 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
     static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
 
         private GestureDetector gestureDetector;
+        private ClickListener clickListener;
 
-        public RecyclerTouchListener(Context mContext, RecyclerView recyclerView, ClickListener clickListener){
+        public RecyclerTouchListener(Context mContext, final RecyclerView recyclerView, final ClickListener clickListener)
+        {
+            this.clickListener=clickListener;
+
             gestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener(){
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
-                    return super.onSingleTapUp(e);
+
+                    //return super.onSingleTapUp(e);
+                    //returning true indicates that our GestureDectector validly handled the event as we expect
+                    return true;
                 }
 
                 @Override
                 public void onLongPress(MotionEvent e) {
-                    super.onLongPress(e);
+
+                     //super.onLongPress(e);
+                    //find the child view under said cordinates
+                    View mChildView = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                    if(mChildView != null && clickListener != null)
+                    {
+                        clickListener.onLongClick(mChildView, recyclerView.getChildLayoutPosition(mChildView));
+                    }
+                    //check that the view and the clicklistner is not null
                 }
             });
         }
 
+        //Helps detect whether or not we touched the view
         @Override
         public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            //GestureDector will help decide if we there has been a long press
+
+            View mChildView = rv.findChildViewUnder(e.getX(), e.getY());
+            if(mChildView != null && clickListener != null && gestureDetector.onTouchEvent(e))
+            {
+                clickListener.onItemClick(mChildView, rv.getChildLayoutPosition(mChildView));
+            }
+
+
             return false; //false by default, passing it down to children layouts
         }
 
@@ -235,7 +268,9 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
     }
 
     public static interface ClickListener{
-        public void onClick(View view, int position);
+        public void onItemClick(View view, int position);
         public void onLongClick(View view, int position);
     }
+
+
 }

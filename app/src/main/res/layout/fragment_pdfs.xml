@@ -2,12 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/usf_color_gradient"
-    tools:context="com.example.gerardogpc.hotcomm.PDFsFragment">
+    >
 
-        <!-- Java code to render the display -->
+        <!-- Java code will render the display -->
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:id="@+id/list_pdf">
 
         </android.support.v7.widget.RecyclerView>
