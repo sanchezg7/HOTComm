@@ -90,9 +90,6 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragManager.beginTransaction();
         //G.S. added switches
         switch(id){
-            case R.id.nav_twitter:
-                fragmentTransaction.replace(containerId, new TwitterFragment(), getResources().getString(R.string.twitterFragment));
-                break;
             case R.id.nav_web:
                 fragmentTransaction.replace(containerId, new WebPageFragment(), getResources().getString(R.string.hotWebpageFragment));
                 break;

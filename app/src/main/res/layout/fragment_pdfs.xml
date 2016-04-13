@@ -1,69 +1,15 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/usf_color_gradient"
-    tools:context="com.example.gerardogpc.hotcomm.PDFsFragment">
+    >
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-
-        <!--
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:padding="15dp"
-            android:weightSum="1">
-
-            <Button
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/handbookSyllabus"
-                android:textSize="10sp"
-                android:id="@+id/btnHandbookSyllabus"
-                android:padding="10dp" />
-
-            <Button
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/drumLineHandbook"
-                android:textSize="10sp"
-                android:id="@+id/btnDrumlineHandbook"
-                android:padding="10dp" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Copy"
-                android:id="@+id/btnCopy"/>
-
-
-        </LinearLayout>
-        <LinearLayout
+        <!-- Java code will render the display -->
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Storage Path Here:"
-                android:id="@+id/storagePathTextView"
-                />
-        </LinearLayout>
-        -->
-        <ListView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/pdfsListView"/>
+            android:padding="10dp"
+            android:id="@+id/list_pdf">
 
-
-    </LinearLayout>
-
-
-</FrameLayout>
+        </android.support.v7.widget.RecyclerView>
+</RelativeLayout>
