@@ -116,9 +116,6 @@ public class PDFsFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
-
-
     public static List<HOTfile> buildData(ArrayList<String> fileNames){
         List<HOTfile> data = new ArrayList<>();
 
