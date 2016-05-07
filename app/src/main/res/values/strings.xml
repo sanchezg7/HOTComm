@@ -16,6 +16,16 @@
         <item>"HOT PDFs"</item>
     </string-array> -->
 
+    <!-- File Directory Things -->
+    <string name="str_rootDirName">/HOT_PDF/</string>
+    <string name="str_syllabus">hot_handbook2015.pdf</string>
+    <string name="url_syllabus">http://herdofthunder.usf.edu/files/handbook15.pdf</string>
+    <string name="str_drumlineSyllabus">dl_handbook15.pdf</string>
+    <string name="url_drumlineSyllabus">http://herdofthunder.usf.edu/files/dl_handbook15.pdf</string>
+
+    <!-- Shared Preferences -->
+    <string name="SP_pdfFileList">pdfFileList</string>
+
     <!-- Twitter Feed Fragment -->
     <string name="twitterFragment">HOT Twitter</string>
     <string name="twitterHello">Twitter Feed (Fragment)</string>

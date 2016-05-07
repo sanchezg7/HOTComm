@@ -1,26 +1,40 @@
 package com.gerardoslnv.hotcomm;
 
-/**
- * Created by GerardoGPC on 3/16/2016.
- */
+import android.content.Context;
+import android.os.Environment;
+
+import java.io.File;
+
 public class HOTfile {
 
-    private String fileName;
+    private static int totalFiles = 0;
+    private static String fullLocalPath;
+    private File mFile;
     private String lastModified;
+    private String remotePath;
 
-    public String getFileName() {return fileName;}
-    public String getLastModified() {return lastModified;}
-
-    HOTfile(String fileName, String lastModified){
-        setFileName(fileName);
+    HOTfile(Context mContext, String fileName, String lastModified){
+        if(totalFiles == 0){
+            fullLocalPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            fullLocalPath += mContext.getString(R.string.str_rootDirName);
+        }
+        ++totalFiles;
+        mFile = new File(fileName);
         setLastModified(lastModified);
+        remotePath = mContext.getString(R.string.url_syllabus);
+
     }
 
-    public void setFileName(String fileName){
-        this.fileName = fileName;
-    }
+    public boolean doesFileExist(){return mFile.exists();}
+
+    public String getFileName() {return mFile.getName();}
+    public String getLastModified() {return lastModified;}
+    public String getRemotePath(){return remotePath;}
+    public static String getFullLocalPath(){return fullLocalPath;}
 
     public void setLastModified(String lastModified){
         this.lastModified = lastModified;
     }
+    public void setRemotePath(String remotePath){this.remotePath = remotePath;}
+    public void setFile(File file){mFile = file;}
 }

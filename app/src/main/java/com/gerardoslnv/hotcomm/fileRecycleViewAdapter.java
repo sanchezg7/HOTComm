@@ -6,9 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.List;
  * Created by GerardoSLnv on 3/6/2016.
  */
 //A ViewHolder is the equivalent of a row in a list view
-public class fileListAdapter extends RecyclerView.Adapter<fileListAdapter.fileViewHolder>{
+public class fileRecycleViewAdapter extends RecyclerView.Adapter<fileRecycleViewAdapter.fileViewHolder>{
 
     private LayoutInflater inflater;
     Context mContext;
@@ -25,7 +22,7 @@ public class fileListAdapter extends RecyclerView.Adapter<fileListAdapter.fileVi
     List<HOTfile> data = Collections.emptyList();
 
     //create a LayoutInflater to take charge of inflating each row
-    public fileListAdapter(Context context, List<HOTfile> data){
+    public fileRecycleViewAdapter(Context context, List<HOTfile> data){
         mContext = context;
         inflater = LayoutInflater.from(mContext);
         this.data = data;

@@ -1,15 +1,22 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.gerardogpc.hotcomm.FacebookFragment">
+    android:background="@color/black"
+    android:gravity="center"
+    tools:context="com.gerardoslnv.hotcomm.FacebookFragment">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/purple"
-        android:paddingTop="75dp"
-        android:text="@string/hotFacebookHello"
-        android:textColor="@color/black"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fb_TV_sessDetails"
+        android:text="FB Session Details"
+        android:textColor="@color/white"
+        />
 
+    <com.facebook.login.widget.LoginButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fb_TV_sessDetails"
+        android:id="@+id/fb_BTN_loginButton"/>
 
-</FrameLayout>
+</RelativeLayout>
