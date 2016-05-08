@@ -1,0 +1,23 @@
+<!-- Root Element -->
+<files>
+
+<pdf>
+	<file name="band_handbook">
+		<url addr="http://herdofthunder.usf.edu/files/handbook15.pdf"/>
+		<filename name="hot_handbook2015.pdf"/>
+		<lastmodified date="Last Year"/>
+	</file>
+	<file name="drumline_handbook">
+		<url addr="http://herdofthunder.usf.edu/files/dl_handbook15.pdf" />
+		<filename name="dl_handbook15.pdf"/>
+		<lastmodified date="Two Years Ago"/>
+	</file>
+</pdf>
+
+
+
+<app>
+	<version edition="1"/>
+</app>
+
+</files>

@@ -13,7 +13,7 @@ public class HOTfile {
     private String lastModified;
     private String remotePath;
 
-    HOTfile(Context mContext, String fileName, String lastModified){
+    HOTfile(Context mContext, String fileName, String lastModified, String remotePath){
         if(totalFiles == 0){
             fullLocalPath = Environment.getExternalStorageDirectory().getAbsolutePath();
             fullLocalPath += mContext.getString(R.string.str_rootDirName);
@@ -21,8 +21,8 @@ public class HOTfile {
         ++totalFiles;
         mFile = new File(fileName);
         setLastModified(lastModified);
-        remotePath = mContext.getString(R.string.url_syllabus);
-
+        //remotePath = mContext.getString(R.string.url_syllabus);
+        this.remotePath = remotePath;
     }
 
     public boolean doesFileExist(){return mFile.exists();}

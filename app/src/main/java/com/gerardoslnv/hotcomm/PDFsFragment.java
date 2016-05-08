@@ -3,12 +3,10 @@ package com.gerardoslnv.hotcomm;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,25 +20,19 @@ import android.widget.Toast;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class PDFsFragment extends Fragment {
 
     private fileRecycleViewAdapter mFileRecycleViewAdapter;
-    //RecyclerView 101
-    /*
+
+    /*//RecyclerView 101
     Need LayoutManager to make it work, no more gridviews
     Need adapter to decide how to put the elements
     To display a row, create a XML file and inflate it in code (expensive linear operation)
@@ -51,13 +43,13 @@ public class PDFsFragment extends Fragment {
      */
     private RecyclerView pdfsRecyclerView; //extends from ViewGroup (layout class), far more flexible
 
-    SharedPreferences pdfsFragPrefs;
+    //SharedPreferences pdfsFragPrefs;
 
     private static String filePath = null;
     static Activity myActivity;
 
 
-    ArrayList<HOTfile> allFiles;
+    ArrayList<HOTfile> allLoadedFiles;
 
     public PDFsFragment() {
         // Required empty public constructor
@@ -75,7 +67,7 @@ public class PDFsFragment extends Fragment {
         pdfsRecyclerView = (RecyclerView) view.findViewById(R.id.list_pdf);
         return view;
     }
-
+//  SharedPreferences Attempt
 //    public void saveSharedPreferences (SharedPreferences mSp, ArrayList<HOTfile> myFiles){
 //
 //        String mKey = getResources().getString(R.string.SP_pdfFileList);
@@ -91,17 +83,28 @@ public class PDFsFragment extends Fragment {
 //        return;
 //    }
 
+    ArrayList<HOTfile> initialSetupAllFiles()
+    {
+        ArrayList<HOTfile> temp = new ArrayList<>();
+
+        return temp;
+    }
+
+
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        allFiles = new ArrayList<> ();
+        allLoadedFiles = new ArrayList<> ();
         //Temporary HARD adding elements
-        allFiles = buildData(fileList, allFiles); //Apr 16 consider adding SQLite Database for saving existing files
+        //check if there are any new elements in the XML file or new modified dates
+
+        allLoadedFiles = buildData(fileList, allLoadedFiles); //Apr 16 consider adding SQLite Database for saving existing files
         filePath = HOTfile.getFullLocalPath();
 
 
-        mFileRecycleViewAdapter = new fileRecycleViewAdapter(getActivity(), allFiles);
+        mFileRecycleViewAdapter = new fileRecycleViewAdapter(getActivity(), allLoadedFiles);
         pdfsRecyclerView.setAdapter(mFileRecycleViewAdapter);
         //pdfsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //telling it to present in a LINEAR format
         //spanCount	int: If orientation is vertical, spanCount is number of columns. If orientation is horizontal, spanCount is number of rows.
@@ -112,7 +115,7 @@ public class PDFsFragment extends Fragment {
             @Override
             public void onClick(View view, int position) {
                 Toast.makeText(myActivity, "onItemClick " + position , Toast.LENGTH_LONG).show();
-                new urlFetchPDF().execute(allFiles.get(position)); //vararg array new HOTfile[]{allFiles.get(position)}
+                new urlFetchPDF().execute(allLoadedFiles.get(position)); //vararg array new HOTfile[]{allLoadedFiles.get(position)}
                 return;
             }
 
@@ -128,8 +131,8 @@ public class PDFsFragment extends Fragment {
         {
             allFiles.add(new HOTfile(myActivity, fileNames.get(i), "Just Now"));
         }
-//        allFiles.add(new HOTfile(myActivity, "dl_handbook2015.pdf", "Yesterday"));
-//        allFiles.add(new HOTfile(myActivity, "hot_handbook2015", "Just Now"));
+//        allLoadedFiles.add(new HOTfile(myActivity, "dl_handbook2015.pdf", "Yesterday"));
+//        allLoadedFiles.add(new HOTfile(myActivity, "hot_handbook2015", "Just Now"));
         return allFiles;
     }
 
