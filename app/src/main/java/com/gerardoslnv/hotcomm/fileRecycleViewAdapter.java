@@ -42,7 +42,7 @@ public class fileRecycleViewAdapter extends RecyclerView.Adapter<fileRecycleView
         //retrieve these elements and finally fill them from the appropriate index
         HOTfile mFile = data.get(position);
         holder.fName.setText(mFile.getFileName());
-        holder.lastModified.setText(mFile.getLastModified());
+        holder.lastModified.setText(mFile.getVersion());
     }
 
     @Override
