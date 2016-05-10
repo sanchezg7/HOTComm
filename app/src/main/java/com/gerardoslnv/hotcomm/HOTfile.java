@@ -10,17 +10,21 @@ public class HOTfile {
     private static int totalFiles = 0;
     private static String fullLocalPath;
     private File mFile;
-    private String lastModified;
+    private int version;
     private String remotePath;
+    private String type;
 
-    HOTfile(Context mContext, String fileName, String lastModified, String remotePath){
-        if(totalFiles == 0){
-            fullLocalPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-            fullLocalPath += mContext.getString(R.string.str_rootDirName);
+    HOTfile(Context mContext, String fileName, int version, String remotePath){
+        //only make the file if context is provided
+        if(mContext != null) {
+            if(totalFiles == 0){
+                fullLocalPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+                fullLocalPath += mContext.getString(R.string.str_rootDirName);
+            }
+            ++totalFiles;
+            mFile = new File(fileName);
         }
-        ++totalFiles;
-        mFile = new File(fileName);
-        setLastModified(lastModified);
+        setVersion(version);
         //remotePath = mContext.getString(R.string.url_syllabus);
         this.remotePath = remotePath;
     }
@@ -28,13 +32,16 @@ public class HOTfile {
     public boolean doesFileExist(){return mFile.exists();}
 
     public String getFileName() {return mFile.getName();}
-    public String getLastModified() {return lastModified;}
+    public int getVersion() {return version;}
     public String getRemotePath(){return remotePath;}
+    public String getType(){return type;}
     public static String getFullLocalPath(){return fullLocalPath;}
 
-    public void setLastModified(String lastModified){
-        this.lastModified = lastModified;
+
+    public void setVersion(int version){
+        this.version = version;
     }
     public void setRemotePath(String remotePath){this.remotePath = remotePath;}
     public void setFile(File file){mFile = file;}
+    public void setType(String type){ this.type = type;}
 }
