@@ -91,45 +91,57 @@ public class PDFsFragment extends Fragment {
     }
 
 
+    public void applyAllFilesToRcylVw()
+    {
+        mFileRecycleViewAdapter = new fileRecycleViewAdapter(getActivity(), allLoadedFiles);
+        pdfsRecyclerView.setAdapter(mFileRecycleViewAdapter);
 
+        //spanCount	int: If orientation is vertical, spanCount is number of columns. If orientation is horizontal, spanCount is number of rows.
+
+        final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(myActivity);
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL); //instructing linear formatting
+        pdfsRecyclerView.setLayoutManager(mLinearLayoutManager);
+        pdfsRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), pdfsRecyclerView, new ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        Toast.makeText(myActivity, "onItemClick " + position , Toast.LENGTH_LONG).show();
+                        new urlFetchPDF().execute(allLoadedFiles.get(position)); //vararg array new HOTfile[]{allLoadedFiles.get(position)}
+                        return;
+                    }
+
+                    @Override
+                    public void onLongClick(View view, int position) {
+                        Toast.makeText(myActivity, "onLongClick " + position, Toast.LENGTH_LONG).show();
+                    }
+                })
+        );
+    }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         allLoadedFiles = new ArrayList<> ();
-        //Temporary HARD adding elements
-        //check if there are any new elements in the XML file or new modified dates
-
-        allLoadedFiles = buildData(fileList, allLoadedFiles); //Apr 16 consider adding SQLite Database for saving existing files
         filePath = HOTfile.getFullLocalPath();
 
+        // Build the arraylist from the original xml file, if it exists
+        // Check if there are any new elements in the XML for new versions or new files
+        //      Start async task to download the xml, if settings allow
+        // If successful downloading, build an arraylist of the new xml file
+        // Compare the new arraylist with the original arraylist
+        // If new version is greater for a file, download it from the URL
+        // If a new file is encountered, download it from the URL
+        // Refresh the recycler view
 
-        mFileRecycleViewAdapter = new fileRecycleViewAdapter(getActivity(), allLoadedFiles);
-        pdfsRecyclerView.setAdapter(mFileRecycleViewAdapter);
-        //pdfsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //telling it to present in a LINEAR format
-        //spanCount	int: If orientation is vertical, spanCount is number of columns. If orientation is horizontal, spanCount is number of rows.
-        final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(myActivity);
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        pdfsRecyclerView.setLayoutManager(mLinearLayoutManager);
-        pdfsRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), pdfsRecyclerView, new ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                Toast.makeText(myActivity, "onItemClick " + position , Toast.LENGTH_LONG).show();
-                new urlFetchPDF().execute(allLoadedFiles.get(position)); //vararg array new HOTfile[]{allLoadedFiles.get(position)}
-                return;
-            }
+        applyAllFilesToRcylVw();
 
-            @Override
-            public void onLongClick(View view, int position) {
-                Toast.makeText(myActivity, "onLongClick " + position, Toast.LENGTH_LONG).show();
-            }
-        }));
     }
 
-    public static ArrayList<HOTfile> buildData(ArrayList<String> fileNames, ArrayList<HOTfile> allFiles){
+    //needs to ARRAYS<HOTFile> and compare new with original. Update them accordingly
+    public static ArrayList<HOTfile> updateData(ArrayList<String> fileNames, ArrayList<HOTfile> allFiles)
+    {
         for(int i = 0; i < fileNames.size(); ++i)
         {
-            allFiles.add(new HOTfile(myActivity, fileNames.get(i), "Just Now"));
+            allFiles.add(new HOTfile(myActivity, fileNames.get(i), "1"));
         }
 //        allLoadedFiles.add(new HOTfile(myActivity, "dl_handbook2015.pdf", "Yesterday"));
 //        allLoadedFiles.add(new HOTfile(myActivity, "hot_handbook2015", "Just Now"));
@@ -220,7 +232,7 @@ public class PDFsFragment extends Fragment {
             if(!mPdf.exists())
             {
                 String targetURL = params[0].getRemotePath();
-                downloadPDF(targetURL, mPdf);
+                File_Helpers.downloadPDF(targetURL, mPdf);
             }
             return null;
         }
@@ -241,41 +253,8 @@ public class PDFsFragment extends Fragment {
             startActivity(chooserIntent);
         }
 
-        private void downloadPDF(String remoteFilePath, File targetFile)
-        {
-            try {
-                URL fileURL = new URL(remoteFilePath);
-                HttpURLConnection mHttpConn = (HttpURLConnection) fileURL.openConnection();
-                InputStream inputStream = new BufferedInputStream(mHttpConn.getInputStream());
 
-                BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(targetFile));
-                copy(inputStream, outputStream);
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-            return;
-        }
 
-        private void copy(InputStream is, OutputStream os){
-            final byte[] buf = new byte[1024];
-            int numBytes;
-
-            try{
-                while(-1 != (numBytes = is.read(buf))){
-                    os.write(buf, 0, numBytes);
-                }
-            } catch (IOException e){
-                e.printStackTrace();
-            } finally {
-                try {
-                    is.close();
-                    os.close();
-                } catch (IOException e){
-                    Log.e("IOExcept.", "IOException");
-                }
-            }
-            Log.i("copy function", "File copied over");
-        }
     }
 
 }
