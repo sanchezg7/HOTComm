@@ -1,23 +1,23 @@
-<!-- Root Element -->
-<files>
+<?xml version="1.0"?>
+<resources>
 
 <pdf>
-	<file name="band_handbook">
+	<file type="band_handbook" version="1">
 		<url addr="http://herdofthunder.usf.edu/files/handbook15.pdf"/>
-		<filename name="hot_handbook2015.pdf"/>
-		<lastmodified date="Last Year"/>
+		<filename name="handbook2015.pdf"/>
+		<!-- Requires the readText(parser) method "<version> 1</version> -->
 	</file>
-	<file name="drumline_handbook">
+	<file type="drumline_handbook" version="1">
 		<url addr="http://herdofthunder.usf.edu/files/dl_handbook15.pdf" />
 		<filename name="dl_handbook15.pdf"/>
-		<lastmodified date="Two Years Ago"/>
 	</file>
+	<files>
+	
 </pdf>
 
-
-
 <app>
-	<version edition="1"/>
+	<android release="1"/>
+	<ios release="1"/>
 </app>
 
-</files>
+</resources>
