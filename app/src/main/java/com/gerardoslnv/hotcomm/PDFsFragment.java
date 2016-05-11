@@ -17,16 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class PDFsFragment extends Fragment {
 
@@ -133,16 +128,19 @@ public class PDFsFragment extends Fragment {
         // Refresh the recycler view
 
         applyAllFilesToRcylVw();
+        String xmlUrl = "https://raw.githubusercontent.com/sanchezg7/HotComm/master/example_files.xml";
+        String xmlFileName = "sample.xml";
+        new urlFecthXML().execute(xmlUrl, xmlFileName);
 
     }
 
     //needs to ARRAYS<HOTFile> and compare new with original. Update them accordingly
     public static ArrayList<HOTfile> updateData(ArrayList<String> fileNames, ArrayList<HOTfile> allFiles)
     {
-        for(int i = 0; i < fileNames.size(); ++i)
-        {
-            allFiles.add(new HOTfile(myActivity, fileNames.get(i), "1"));
-        }
+//        for(int i = 0; i < fileNames.size(); ++i)
+//        {
+//            allFiles.add(new HOTfile(myActivity, fileNames.get(i), "1"));
+//        }
 //        allLoadedFiles.add(new HOTfile(myActivity, "dl_handbook2015.pdf", "Yesterday"));
 //        allLoadedFiles.add(new HOTfile(myActivity, "hot_handbook2015", "Just Now"));
         return allFiles;
@@ -217,8 +215,7 @@ public class PDFsFragment extends Fragment {
 
         @Override
         protected HOTfile doInBackground(HOTfile... params) {
-            //params[0]: the path to the directory
-            //params[1]: the filename desired to save
+            //params[0]: current HOTFile
 
             String mFileName = params[0].getFileName();
             fullPath = new File(filePath);
@@ -232,7 +229,7 @@ public class PDFsFragment extends Fragment {
             if(!mPdf.exists())
             {
                 String targetURL = params[0].getRemotePath();
-                File_Helpers.downloadPDF(targetURL, mPdf);
+                File_Helpers.downloadRemoteFile(targetURL, mPdf);
             }
             return null;
         }
@@ -252,9 +249,47 @@ public class PDFsFragment extends Fragment {
             Intent chooserIntent = Intent.createChooser(intent, "Open PDF");
             startActivity(chooserIntent);
         }
-
-
-
     }
 
+    //xml link: https://raw.githubusercontent.com/sanchezg7/HotComm/master/example_files.xml
+
+    private class urlFecthXML extends AsyncTask<Object, Void, Object>
+    {
+        //params[0]: URL
+        //params[1]: desired filename
+
+        //type "Object" allows for casting
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(myActivity, "Downloading xml...", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected Object doInBackground(Object... params) {
+
+            if(params.length != 2)
+            {
+                Log.e(getString(R.string.app_name), "urlFetchXML failed params requirement");
+                return null;
+            }
+
+            String targetURL = (String) params[0];
+            String fileName = (String) params[1];
+
+            File intrnlFile =  new File (myActivity.getFilesDir(), fileName);
+            File_Helpers.downloadRemoteFile(targetURL, intrnlFile);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            Toast.makeText(myActivity, "Done downloading XML", Toast.LENGTH_SHORT).show();
+
+        }
+    }
 }

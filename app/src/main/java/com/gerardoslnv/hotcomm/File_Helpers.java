@@ -15,7 +15,7 @@ import java.net.URL;
 class File_Helpers {
 
 
-    public static void downloadPDF(String remoteFilePath, File targetFile) {
+    public static void downloadRemoteFile(String remoteFilePath, File targetFile) {
         try {
             URL fileURL = new URL(remoteFilePath);
             HttpURLConnection mHttpConn = (HttpURLConnection) fileURL.openConnection();
@@ -29,7 +29,7 @@ class File_Helpers {
         return;
     }
 
-    private static void copy(InputStream is, OutputStream os) {
+    public static void copy(InputStream is, OutputStream os) {
         final byte[] buf = new byte[1024];
         int numBytes;
 
