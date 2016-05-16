@@ -2,17 +2,15 @@
 <resources>
 
 <pdf>
-	<file type="band_handbook" version="1">
+	<file id="1" type="band_handbook" version="1">
 		<url addr="http://herdofthunder.usf.edu/files/handbook15.pdf"/>
 		<filename name="handbook2015.pdf"/>
 		<!-- Requires the readText(parser) method "<version> 1</version> -->
 	</file>
-	<file type="drumline_handbook" version="1">
+	<file id="2" type="drumline_handbook" version="1">
 		<url addr="http://herdofthunder.usf.edu/files/dl_handbook15.pdf" />
 		<filename name="dl_handbook15.pdf"/>
-	</file>
-	
-	
+	</file>	
 </pdf>
 
 <app>
