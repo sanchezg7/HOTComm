@@ -26,7 +26,6 @@ class File_Helpers {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return;
     }
 
     public static void copy(InputStream is, OutputStream os) {

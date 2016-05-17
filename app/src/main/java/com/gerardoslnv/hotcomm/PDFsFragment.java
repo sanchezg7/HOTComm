@@ -17,11 +17,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 
 public class PDFsFragment extends Fragment {
 
@@ -44,7 +48,7 @@ public class PDFsFragment extends Fragment {
     static Activity myActivity;
 
 
-    ArrayList<HOTfile> allLoadedFiles;
+    List<HOTfile> allLoadedFiles;
 
     public PDFsFragment() {
         // Required empty public constructor
@@ -78,13 +82,6 @@ public class PDFsFragment extends Fragment {
 //        return;
 //    }
 
-    ArrayList<HOTfile> initialSetupAllFiles()
-    {
-        ArrayList<HOTfile> temp = new ArrayList<>();
-
-        return temp;
-    }
-
 
     public void applyAllFilesToRcylVw()
     {
@@ -96,7 +93,7 @@ public class PDFsFragment extends Fragment {
         final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(myActivity);
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL); //instructing linear formatting
         pdfsRecyclerView.setLayoutManager(mLinearLayoutManager);
-        pdfsRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), pdfsRecyclerView, new ClickListener() {
+        pdfsRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), pdfsRecyclerView, new myClickListener() {
                     @Override
                     public void onClick(View view, int position) {
                         Toast.makeText(myActivity, "onItemClick " + position , Toast.LENGTH_LONG).show();
@@ -115,45 +112,27 @@ public class PDFsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        allLoadedFiles = new ArrayList<> ();
-        filePath = HOTfile.getFullLocalPath();
-
-        // Build the arraylist from the original xml file, if it exists
-        // Check if there are any new elements in the XML for new versions or new files
-        //      Start async task to download the xml, if settings allow
-        // If successful downloading, build an arraylist of the new xml file
-        // Compare the new arraylist with the original arraylist
-        // If new version is greater for a file, download it from the URL
-        // If a new file is encountered, download it from the URL
-        // Refresh the recycler view
-
-        applyAllFilesToRcylVw();
+        //applyAllFilesToRcylVw();
         String xmlUrl = "https://raw.githubusercontent.com/sanchezg7/HotComm/master/example_files.xml";
         String xmlFileName = "sample.xml";
+
+        //check network settings here, only fetch url if wifi is present
+
+        //if file available, build data
+        //perform refresh based on when the user wants to
         new urlFecthXML().execute(xmlUrl, xmlFileName);
+        filePath = HOTfile.getFullLocalPath(getActivity());
 
-    }
-
-    //needs to ARRAYS<HOTFile> and compare new with original. Update them accordingly
-    public static ArrayList<HOTfile> updateData(ArrayList<String> fileNames, ArrayList<HOTfile> allFiles)
-    {
-//        for(int i = 0; i < fileNames.size(); ++i)
-//        {
-//            allFiles.add(new HOTfile(myActivity, fileNames.get(i), "1"));
-//        }
-//        allLoadedFiles.add(new HOTfile(myActivity, "dl_handbook2015.pdf", "Yesterday"));
-//        allLoadedFiles.add(new HOTfile(myActivity, "hot_handbook2015", "Just Now"));
-        return allFiles;
     }
 
     static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
 
         private GestureDetector gestureDetector;
-        private ClickListener clickListener;
+        private myClickListener mClickListener;
 
-        public RecyclerTouchListener(Context mContext, final RecyclerView recyclerView, final ClickListener clickListener)
+        public RecyclerTouchListener(Context mContext, final RecyclerView recyclerView, final myClickListener mClickListener)
         {
-            this.clickListener=clickListener;
+            this.mClickListener = mClickListener;
 
             gestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener(){
                 @Override
@@ -170,8 +149,8 @@ public class PDFsFragment extends Fragment {
                      //super.onLongPress(e);
                     //find the child view under said coordinates
                     View mChildView = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                    if(mChildView != null && clickListener != null) {
-                        clickListener.onLongClick(mChildView, recyclerView.getChildLayoutPosition(mChildView));
+                    if(mChildView != null && mClickListener != null) {
+                        mClickListener.onLongClick(mChildView, recyclerView.getChildLayoutPosition(mChildView));
                     }
                 }
             });
@@ -183,9 +162,9 @@ public class PDFsFragment extends Fragment {
             //GestureDector will help decide if we there has been a long press
 
             View mChildView = rv.findChildViewUnder(e.getX(), e.getY());
-            if(mChildView != null && clickListener != null && gestureDetector.onTouchEvent(e))
+            if(mChildView != null && mClickListener != null && gestureDetector.onTouchEvent(e))
             {
-                clickListener.onClick(mChildView, rv.getChildLayoutPosition(mChildView));
+                mClickListener.onClick(mChildView, rv.getChildLayoutPosition(mChildView));
             }
             return false; //false by default, passing it down to children layouts
         }
@@ -194,10 +173,12 @@ public class PDFsFragment extends Fragment {
         public void onTouchEvent(RecyclerView rv, MotionEvent e) {}
 
         @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
     }
 
-    public static interface ClickListener{
+    public static interface myClickListener {
         public void onClick(View view, int position);
         public void onLongClick(View view, int position);
     }
@@ -205,12 +186,12 @@ public class PDFsFragment extends Fragment {
     private class urlFetchPDF extends AsyncTask<HOTfile, Void, HOTfile>
     {
         File mPdf;
-        File fullPath;
+        File fullPath_Directory;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Toast.makeText(getActivity(), "Opening File...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Opening PDF File...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -218,18 +199,18 @@ public class PDFsFragment extends Fragment {
             //params[0]: current HOTFile
 
             String mFileName = params[0].getFileName();
-            fullPath = new File(filePath);
+            fullPath_Directory = new File(filePath);
             mPdf = new File(filePath + mFileName);
 
 
             //ensure the directory for storing, exist
-            if(!fullPath.exists()){
-                fullPath.mkdirs();
+            if(!fullPath_Directory.exists()){
+                fullPath_Directory.mkdirs();
             }
             if(!mPdf.exists())
             {
                 String targetURL = params[0].getRemotePath();
-                File_Helpers.downloadRemoteFile(targetURL, mPdf);
+                File_Helpers.downloadRemoteFile(targetURL, mPdf); //store into mPdf file handle
             }
             return null;
         }
@@ -277,19 +258,81 @@ public class PDFsFragment extends Fragment {
             }
 
             String targetURL = (String) params[0];
-            String fileName = (String) params[1];
+            String origFileName = (String) params[1];
+            String tmpFileName = origFileName + ".tmp";
 
-            File intrnlFile =  new File (myActivity.getFilesDir(), fileName);
-            File_Helpers.downloadRemoteFile(targetURL, intrnlFile);
+            //tmpFile will become original, by default
+            File tmpFile =  new File (myActivity.getFilesDir(), tmpFileName);
+            File_Helpers.downloadRemoteFile(targetURL, tmpFile);
 
+            XmlHandler xmlHandler = new XmlHandler();
+            List<HOTfile> tempList;
+
+            try {
+                InputStream fileIS = new FileInputStream(tmpFile);
+                tempList = xmlHandler.parsePdf(fileIS);
+
+                File origFile = new File(myActivity.getFilesDir(), origFileName);
+
+                if(origFile.exists()) //perform comparison
+                {
+                    //build lists
+                    List <HOTfile> origList;
+                    InputStream orig_fileIS = new FileInputStream(origFile);
+                    origList = xmlHandler.parsePdf(orig_fileIS);
+                    //do comparison
+
+                    allLoadedFiles = compareFiles(origList, tempList);
+
+                }
+                origFile.delete(); //get rid of old
+                tmpFile.renameTo(origFile); //change filename to ORIGINAL now
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return null;
+        }
+
+
+        protected List<HOTfile> compareFiles(List<HOTfile> orig, List<HOTfile> temp)
+        {
+            //check the id and the version
+            for(int i = 0; i < orig.size(); ++i)
+            {
+                if(temp.get(i).getVersion() > orig.get(i).getVersion())
+                {
+                    //download updated version of file
+                    File_Helpers.downloadRemoteFile(orig.get(i).getRemotePath(), orig.get(i).getmFile());
+                }
+            }
+
+            int j = orig.size();
+            int sz = temp.size();
+            while (j != sz)
+            {
+                orig.add(temp.get(j));
+                orig.get(j).addContext(myActivity);
+                temp.remove(j);
+                --sz;
+            }
+
+
+            return orig;
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             Toast.makeText(myActivity, "Done downloading XML", Toast.LENGTH_SHORT).show();
+            applyAllFilesToRcylVw();
 
         }
+
+
+
     }
 }

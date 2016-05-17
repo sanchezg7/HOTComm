@@ -40,9 +40,9 @@ public class fileRecycleViewAdapter extends RecyclerView.Adapter<fileRecycleView
     @Override
     public void onBindViewHolder(fileViewHolder holder, int position) {
         //retrieve these elements and finally fill them from the appropriate index
-        HOTfile mFile = data.get(position);
-        holder.fName.setText(mFile.getFileName());
-        holder.lastModified.setText(mFile.getVersion());
+        HOTfile hotFile = data.get(position);
+        holder.fName.setText(hotFile.getFileName());
+        holder.version.setText(Integer.toString(hotFile.getVersion()));
     }
 
     @Override
@@ -53,15 +53,15 @@ public class fileRecycleViewAdapter extends RecyclerView.Adapter<fileRecycleView
     public class fileViewHolder extends RecyclerView.ViewHolder{ //implements View.OnClickListener{
 
         TextView fName;
-        TextView lastModified;
+        TextView version;
         //represents the item of the given type (a file entry)
         public fileViewHolder(View itemView) {
             super(itemView);
             //find the XML elements each here (ex: ImageView, TextView, TextView)
             fName = (TextView) itemView.findViewById(R.id.cell_file_name);
-            lastModified = (TextView) itemView.findViewById(R.id.cell_modified_date);
+            version = (TextView) itemView.findViewById(R.id.cell_version);
 //            fName.setOnClickListener(this);
-//            lastModified.setOnClickListener(this);
+//            version.setOnClickListener(this);
         }
 
 //        @Override

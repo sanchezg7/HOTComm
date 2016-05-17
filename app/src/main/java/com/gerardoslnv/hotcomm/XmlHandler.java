@@ -18,38 +18,61 @@ public class XmlHandler {
     private boolean parseComplete;
     private String mStartTag_PDF;
     private String mStartTag_Resources;
-    private static String mNameSpace = null;
+    private String mStartTag_File;
+    private String mStartTag_URL;
+    private String mStartTag_Filename;
+    private static String mNameSpace;
+    private List<HOTfile> parsedHotFiles;
+
+    //fields for HOT File
+    String mURL = null;
+    String mFileName = null;
+    String mType; //category of file
+    int mVersion;
+    int mId;
 
 
-    XmlHandler()
-    {
+    XmlHandler() {
+        parsedHotFiles = new ArrayList<>();
+
+    }
+
+    public void reset(){
+        setParseComplete(false);
         mStartTag_PDF = "pdf";
         mStartTag_Resources = "resources";
-        parseComplete = false;
+        mStartTag_File = "file";
+        mStartTag_URL = "url";
+        mStartTag_Filename = "filename";
+        mNameSpace = null;
+        parsedHotFiles.clear();
     }
 
 
     public List<HOTfile> parsePdf(InputStream in) throws XmlPullParserException, IOException
     {
+        reset();
         XmlPullParser mParser;
+
         //this part instantiates and kick starts the parsing in the readFeed section
         try{
             mParser = Xml.newPullParser();
             mParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false); //disable namespace
             mParser.setInput(in, null);
             mParser.nextTag();
-            return processPdfs(mParser);
-
+            processPdfs(mParser);
         }finally {
             in.close();
         }
+        setParseComplete(true);
+        return parsedHotFiles;
+
     }
 
     //If it encounters the pdf tag, hand it off to the reading a file method to add to the arraylist
     //It will skip the tag if we are not interested in it
-    private List<HOTfile> processPdfs(XmlPullParser parser) throws XmlPullParserException, IOException
+    private void processPdfs(XmlPullParser parser) throws XmlPullParserException, IOException
     {
-        List availFiles = new ArrayList<HOTfile>();
         parser.require(XmlPullParser.START_TAG, mNameSpace, mStartTag_Resources); //setting the start_tag
         while(parser.next() != XmlPullParser.END_TAG)
         {
@@ -59,64 +82,82 @@ public class XmlHandler {
                 continue;
             }
             String name  = parser.getName();
-            if(name.equals("pdf"))
+            if(name.equals("pdf")) //1st level depth
             {
                 //scan the files
-                availFiles = processHotFiles(parser);
+                processHotFiles(parser);
             }else {
                 skip(parser); //not interested in the other tags
             }
         }
-        return null;
-
     }
 
 
-    private List<HOTfile> processHotFiles(XmlPullParser parser) throws XmlPullParserException, IOException
+    private void processHotFiles(XmlPullParser parser) throws XmlPullParserException, IOException
     {
-        List <HOTfile> allDocs = new ArrayList<>();
-
-        parser.require(XmlPullParser.START_TAG, mNameSpace, mStartTag_PDF); //jump to "file" tag
+        parser.require(XmlPullParser.START_TAG, mNameSpace, mStartTag_PDF); //enforce the "pdf" tag
         while(parser.next() != XmlPullParser.END_TAG)
         {
-            //field for HOT File
-            String URL = null;
-            String fileName = null;
-            String type;
-            int version;
+            if(parser.getEventType() != XmlPullParser.START_TAG) {
+                continue; //this skips over the start tag found
+            }
 
-            if(parser.getEventType() != XmlPullParser.START_TAG)
-                continue; //continue until we find the desired start tag
+            //reset fields for HOT File
+            mURL = null;
+            mFileName = null;
+            mType = null; //category of file
+            mVersion = -1;
+
+            String tag = parser.getName(); //format <file type="band_handbook" version="1">
+            if(tag.equals("file")) //2nd level depth
+            {
+                mType = parser.getAttributeValue(mNameSpace, "type"); /* TODO: consolidate the attribute names */
+                mVersion = Integer.parseInt(parser.getAttributeValue(mNameSpace, "version"));
+                mId = Integer.parseInt(parser.getAttributeValue(mNameSpace, "id"));
+
+                processFileAttbs(parser);
+
+                //Place holder HotFile with retrieved data
+                HOTfile tempHOTFile = new HOTfile(null, mFileName, mVersion, mId, mURL, mType);
+                parsedHotFiles.add(tempHOTFile);
+            }
+        }
+    }
+
+    private void processFileAttbs(XmlPullParser parser) throws XmlPullParserException, IOException
+    {
+        parser.require(XmlPullParser.START_TAG, mNameSpace, mStartTag_File); //enforce currently at the "file" tag
+        while(parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue; //this skips over the start tag found
+            }
 
             String tag = parser.getName();
-            if(tag.equals("file"))
+            if (tag.equals(mStartTag_URL)) {
+                mURL = getURL(parser);
+            } else if (tag.equals(mStartTag_Filename))
             {
-                type = parser.getAttributeValue(mNameSpace, "type"); /* TODO: consolidate the attribute names */
-                version = Integer.parseInt(parser.getAttributeValue(mNameSpace, "version"));
-
-                URL = getURL(parser);
-                fileName = getFileName(parser);
+                mFileName = getFileName(parser);
             }
         }
 
-        //make a new instance of a HOTFile
-        //populate it with the name, and version number
-        //add it to the arraylist
-        return allDocs;
     }
 
     private String getURL(XmlPullParser parser) throws XmlPullParserException, IOException
     {
-        parser.require(XmlPullParser.START_TAG, mNameSpace, "url"); //TODO: consolidate
+        parser.require(XmlPullParser.START_TAG, mNameSpace, mStartTag_URL); //TODO: consolidate
         String URL = parser.getAttributeValue(mNameSpace, "addr");
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, mNameSpace, mStartTag_URL);
         return  URL;
     }
 
     private String getFileName(XmlPullParser parser) throws XmlPullParserException, IOException
     {
-        parser.require(XmlPullParser.START_TAG, mNameSpace, "filename");
+        parser.require(XmlPullParser.START_TAG, mNameSpace, mStartTag_Filename);
         String fileName = parser.getAttributeValue(mNameSpace, "name");
-        parser.require(XmlPullParser.START_TAG, mNameSpace, "filename");
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, mNameSpace, mStartTag_Filename);
         return fileName;
     }
 
@@ -144,4 +185,5 @@ public class XmlHandler {
     public void setStartTag(String startTag){ mStartTag_PDF = startTag;}
     public void setmNameSpace(String nameSpace){mNameSpace = nameSpace;}
     public boolean isParseComplete(){return parseComplete;}
+    private void setParseComplete(boolean flag){ this.parseComplete = flag; }
 }

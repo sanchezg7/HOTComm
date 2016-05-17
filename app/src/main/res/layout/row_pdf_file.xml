@@ -30,7 +30,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:id = "@+id/cell_modified_date"/>
+            android:id = "@+id/cell_version"/>
 
     </LinearLayout>
 
